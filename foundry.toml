@@ -11,4 +11,5 @@ gas_reports = [
 
 remappings = [
     "@openzeppelin/=lib/openzeppelin-contracts/contracts",
+    "@uniV4/=lib/v4-core"
 ]
