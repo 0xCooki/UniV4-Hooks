@@ -4,6 +4,7 @@ pragma solidity 0.8.24;
 import "forge-std/Test.sol";
 import "forge-std/console2.sol";
 
+import {Hooks} from "@uniV4/src/libraries/Hooks.sol";
 import {HookAddressMiner} from "../contracts/libraries/HookAddressMiner.sol";
 import {BaseHook} from "../contracts/BaseHook.sol";
 
@@ -20,6 +21,21 @@ contract TestHookAddressMiner is Test {
             console2.log("Mined  Address: ", minedAddress);
 
             BaseHook baseHook = new BaseHook{salt: salt}();
+
+            /// @dev Uniswap Hook validation function
+            Hooks.Permissions memory permissions = Hooks.Permissions({
+                beforeInitialize: true,
+                afterInitialize: true,
+                beforeAddLiquidity: true,
+                afterAddLiquidity: true,
+                beforeRemoveLiquidity: true,
+                afterRemoveLiquidity: true,
+                beforeSwap: true,
+                afterSwap: true,
+                beforeDonate: true,
+                afterDonate: true
+            });
+            Hooks.validateHookPermissions(baseHook, permissions);
 
             console2.log("Actual Address: ", address(baseHook));
 
