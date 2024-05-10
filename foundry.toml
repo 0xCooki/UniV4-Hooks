@@ -4,6 +4,7 @@ libs = ['lib']
 optimizer = true
 optimizer_runs = 420_000
 fuzz_max_global_rejects = 420_000
+evm_version = 'cancun'
 
 gas_reports = [
     "Contract"
