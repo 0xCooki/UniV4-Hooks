@@ -6,10 +6,33 @@ import {BalanceDelta} from "@uniV4/src/types/BalanceDelta.sol";
 import {IPoolManager} from "@uniV4/src/interfaces/IPoolManager.sol";
 import {IHooks} from "@uniV4/src/interfaces/IHooks.sol";
 
-/// @dev A base implementation for a hook, to be inherited. 
+/// @dev A base implementation for a hook, to be inherited (inspired by https://github.com/Uniswap/v4-periphery/blob/e9ea3c9cb6caaa7b50f51a4e52073b60b8ccfe3a/contracts/BaseHook.sol). 
 ///      All hook functions revert as they're not implemented here.
 contract BaseHook is IHooks {
+    
+    /// ERRORS ///
+
+    error NotPoolManager();
     error HookNotImplemented();
+
+    /// IMMUTABLES ///
+
+    IPoolManager public immutable poolManager;
+
+    /// MODIFIERS ///
+
+    modifier poolManagerOnly() {
+        if (msg.sender != address(poolManager)) revert NotPoolManager();
+        _;
+    }
+
+    /// CONSTRUCTOR ///
+
+    constructor(IPoolManager _poolManager) {
+        poolManager = _poolManager;
+    }
+
+    /// VIRTUALS ///
 
     /// @notice The hook called before the state of a pool is initialized
     /// @param sender The initial msg.sender for the initialize call

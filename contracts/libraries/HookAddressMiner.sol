@@ -22,7 +22,7 @@ library HookAddressMiner {
         uint160 tempAddress;
         bytes32 salt;
 
-        for (uint256 i; i < 10000; i++) {
+        for (uint256 i; i < 42000; i++) {
             salt = keccak256(abi.encodePacked(i, block.number));
 
             tempAddress = uint160(uint(keccak256(abi.encodePacked(

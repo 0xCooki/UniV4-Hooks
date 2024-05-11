@@ -7,7 +7,7 @@ fuzz_max_global_rejects = 420_000
 evm_version = 'cancun'
 
 gas_reports = [
-    "Contract"
+    "CounterHook",
 ]
 
 remappings = [
