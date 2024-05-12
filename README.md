@@ -4,7 +4,11 @@ A repository for Uniswap V4 hooks. Built using [Foundry](https://book.getfoundry
 
 ### Hooks
 
-TBD
+##### Counter
+
+A counter hook that simply counts each added liquidity, removed lquidity, swap, and donate call to a pool.
+
+##### TBD
 
 ### Utilities
 

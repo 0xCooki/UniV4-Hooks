@@ -12,6 +12,7 @@ import {TickMath} from "@uniV4/src/libraries/TickMath.sol";
 import {PoolId, PoolIdLibrary} from "@uniV4/src/types/PoolId.sol";
 import {PoolKey} from "@uniV4/src/types/PoolKey.sol";
 import {CurrencyLibrary, Currency} from "@uniV4/src/types/Currency.sol";
+import {BalanceDelta} from "@uniV4/src/types/BalanceDelta.sol";
 
 import {CounterHook} from "../contracts/Hooks/CounterHook.sol";
 import {HookAddressMiner} from "../contracts/libraries/HookAddressMiner.sol";
@@ -31,8 +32,8 @@ contract CounterHookTest is Test, Deployers {
         /// Deploys Counter Hook
         bytes32 bytecodeHash = keccak256(abi.encodePacked(
             type(CounterHook).creationCode,
-            abi.encode(address(manager)))
-        );
+            abi.encode(address(manager))
+        ));
         uint160 desiredPrefix = uint160(
             Hooks.AFTER_ADD_LIQUIDITY_FLAG |
             Hooks.AFTER_REMOVE_LIQUIDITY_FLAG |
@@ -50,8 +51,62 @@ contract CounterHookTest is Test, Deployers {
         manager.initialize(key, SQRT_RATIO_1_1, ZERO_BYTES);
 
         /// Provide initial liquidity
+        /// Increments the add liquidity counter
         modifyLiquidityRouter.modifyLiquidity(key, IPoolManager.ModifyLiquidityParams(-60, 60, 10 ether), ZERO_BYTES);
     }
 
-    function testTest() public {}
+    function testInit() public {
+        /// Validate correct hooks
+        Hooks.Permissions memory permissions = Hooks.Permissions({
+            beforeInitialize: false,
+            afterInitialize: false,
+            beforeAddLiquidity: false,
+            afterAddLiquidity: true,
+            beforeRemoveLiquidity: false,
+            afterRemoveLiquidity: true,
+            beforeSwap: false,
+            afterSwap: true,
+            beforeDonate: false,
+            afterDonate: true
+        });
+        Hooks.validateHookPermissions(counterHook, permissions);
+
+        /// Correct initial counters
+        assertEq(counterHook.addedLiquidityCount(poolId), 1);
+        assertEq(counterHook.removedLiquidityCount(poolId), 0);
+        assertEq(counterHook.swappedCount(poolId), 0);
+        assertEq(counterHook.donatedCount(poolId), 0);
+    }
+
+    function testAddLiquidity() public {
+        assertEq(counterHook.addedLiquidityCount(poolId), 1);
+
+        modifyLiquidityRouter.modifyLiquidity(key, IPoolManager.ModifyLiquidityParams(-60, 60, 10 ether), ZERO_BYTES);
+
+        assertEq(counterHook.addedLiquidityCount(poolId), 2);
+    }
+
+    function testRemoveLiquidity() public {
+        assertEq(counterHook.removedLiquidityCount(poolId), 0);
+
+        modifyLiquidityRouter.modifyLiquidity(key, IPoolManager.ModifyLiquidityParams(-60, 60, -10 ether), ZERO_BYTES);
+
+        assertEq(counterHook.removedLiquidityCount(poolId), 1);
+    }
+
+    function testSwap() public {
+        assertEq(counterHook.swappedCount(poolId), 0);
+
+        swap(key, true, 1e18, ZERO_BYTES);
+
+        assertEq(counterHook.swappedCount(poolId), 1);
+    }
+
+    function testDonate() public {
+        assertEq(counterHook.donatedCount(poolId), 0);
+
+        donateRouter.donate(key, 0, 0, ZERO_BYTES);
+
+        assertEq(counterHook.donatedCount(poolId), 1);
+    }
 }

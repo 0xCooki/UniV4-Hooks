@@ -17,8 +17,8 @@ contract CounterHook is BaseHook {
 
     mapping(PoolId => uint256 count) public addedLiquidityCount;
     mapping(PoolId => uint256 count) public removedLiquidityCount;
-    mapping(PoolId => uint256 count) public swappededLiquidityCount;
-    mapping(PoolId => uint256 count) public DonatedLiquidityCount;
+    mapping(PoolId => uint256 count) public swappedCount;
+    mapping(PoolId => uint256 count) public donatedCount;
 
     /// CONSTRUCTOR ///
 
@@ -70,7 +70,7 @@ contract CounterHook is BaseHook {
         delta;
         hookData;
 
-        swappededLiquidityCount[key.toId()]++;
+        swappedCount[key.toId()]++;
         return this.afterSwap.selector;
     }
 
@@ -86,7 +86,7 @@ contract CounterHook is BaseHook {
         amount1;
         hookData;
 
-        DonatedLiquidityCount[key.toId()]++;
+        donatedCount[key.toId()]++;
         return this.afterDonate.selector;
     }
 }
