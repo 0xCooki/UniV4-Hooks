@@ -27,65 +27,45 @@ contract CounterHook is BaseHook {
     /// OVERRIDES ///
 
     function afterAddLiquidity(
-        address sender,
+        address,
         PoolKey calldata key,
-        IPoolManager.ModifyLiquidityParams calldata params,
-        BalanceDelta delta,
-        bytes calldata hookData
+        IPoolManager.ModifyLiquidityParams calldata,
+        BalanceDelta,
+        bytes calldata
     ) external override poolManagerOnly returns (bytes4) {
-        sender;
-        params;
-        delta;
-        hookData;
-
         addedLiquidityCount[key.toId()]++;
         return this.afterAddLiquidity.selector;
     }
 
     function afterRemoveLiquidity(
-        address sender,
+        address,
         PoolKey calldata key,
-        IPoolManager.ModifyLiquidityParams calldata params,
-        BalanceDelta delta,
-        bytes calldata hookData
+        IPoolManager.ModifyLiquidityParams calldata,
+        BalanceDelta,
+        bytes calldata
     ) external override poolManagerOnly returns (bytes4) {
-        sender;
-        params;
-        delta;
-        hookData;
-
         removedLiquidityCount[key.toId()]++;
         return this.afterRemoveLiquidity.selector;
     }
 
     function afterSwap(
-        address sender,
+        address,
         PoolKey calldata key,
-        IPoolManager.SwapParams calldata params,
-        BalanceDelta delta,
-        bytes calldata hookData
+        IPoolManager.SwapParams calldata,
+        BalanceDelta,
+        bytes calldata
     ) external override poolManagerOnly returns (bytes4) {
-        sender;
-        params;
-        delta;
-        hookData;
-
         swappedCount[key.toId()]++;
         return this.afterSwap.selector;
     }
 
     function afterDonate(
-        address sender,
+        address,
         PoolKey calldata key,
-        uint256 amount0,
-        uint256 amount1,
-        bytes calldata hookData
+        uint256,
+        uint256,
+        bytes calldata
     ) external override poolManagerOnly returns (bytes4) {
-        sender;
-        amount0;
-        amount1;
-        hookData;
-
         donatedCount[key.toId()]++;
         return this.afterDonate.selector;
     }

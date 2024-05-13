@@ -55,7 +55,7 @@ contract CounterHookTest is Test, Deployers {
         modifyLiquidityRouter.modifyLiquidity(key, IPoolManager.ModifyLiquidityParams(-60, 60, 10 ether), ZERO_BYTES);
     }
 
-    function testInit() public {
+    function testInit() public view {
         /// Validate correct hooks
         Hooks.Permissions memory permissions = Hooks.Permissions({
             beforeInitialize: false,
