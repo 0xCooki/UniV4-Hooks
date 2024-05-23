@@ -18,6 +18,8 @@ import {PoolSwapTest} from "@uniV4/src/test/PoolSwapTest.sol";
 import {ReceiptHook} from "../contracts/Hooks/ReceiptHook.sol";
 import {HookAddressMiner} from "../contracts/libraries/HookAddressMiner.sol";
 
+
+
 contract ReceiptHookTest is Test, Deployers {
     using PoolIdLibrary for PoolKey;
     using CurrencyLibrary for Currency;
@@ -35,7 +37,7 @@ contract ReceiptHookTest is Test, Deployers {
         Deployers.deployFreshManagerAndRouters();
         Deployers.deployMintAndApprove2Currencies();
 
-        /// Deploys Counter Hook
+        /// Deploys Hook
         string memory uri = "URI_STRING";
         bytes32 bytecodeHash = keccak256(abi.encodePacked(
             type(ReceiptHook).creationCode,

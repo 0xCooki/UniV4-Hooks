@@ -12,7 +12,7 @@ import {BaseHook} from "../contracts/BaseHook.sol";
 contract TestHookAddressMiner is Test {
     function setUp() public {}
 
-    function testSimpleAddressMiner() public {
+    function testHookAddressMiner() public {
         /// @dev Pool manager constructor variable of address(0)
         bytes32 bytecodeHash = keccak256(abi.encodePacked(type(BaseHook).creationCode, abi.encode(address(0))));
 
