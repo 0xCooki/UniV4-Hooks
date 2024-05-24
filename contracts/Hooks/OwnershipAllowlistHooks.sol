@@ -14,6 +14,10 @@ import {BaseHook} from "../BaseHook.sol";
 /// @notice These hooks (inspired by https://github.com/wagmiwiz/nft-owners-only-uniswap-hook) restricts adding liqudity,
 ///         swapping, and donating depending on whether the tx.origin owns a specified token. Supported token standards
 ///         include ERC20s, ERC721s, and ERC1155s.
+/// @dev    Contracts below use tx.origin rather than msg.sender to determine ownership. The reason for this is so that
+///         ownership isn't queried from the swap router, but instead the originator of the transaction. This does however
+///         introduce the risk of malicious contracts exploiting user's owned assets to add liquidity, swap, or donate
+///         without owning the asset themselves.
 
 /// @notice This hooks restricts access given a minimum balance of an ERC20 token.
 contract ERC20OwnershipAllowlistHook is BaseHook {
@@ -46,7 +50,7 @@ contract ERC20OwnershipAllowlistHook is BaseHook {
         PoolKey calldata,
         IPoolManager.ModifyLiquidityParams calldata,
         bytes calldata
-    ) external override poolManagerOnly returns (bytes4) {
+    ) external view override poolManagerOnly returns (bytes4) {
         if (!_senderHoldsMinTokens(tx.origin)) revert MinBalanceNotHeld();
         return this.beforeAddLiquidity.selector;
     }
@@ -56,7 +60,7 @@ contract ERC20OwnershipAllowlistHook is BaseHook {
         PoolKey calldata,
         IPoolManager.SwapParams calldata,
         bytes calldata
-    ) external override poolManagerOnly returns (bytes4) {
+    ) external view override poolManagerOnly returns (bytes4) {
         if (!_senderHoldsMinTokens(tx.origin)) revert MinBalanceNotHeld();
         return this.beforeSwap.selector;
     }
@@ -67,7 +71,7 @@ contract ERC20OwnershipAllowlistHook is BaseHook {
         uint256,
         uint256,
         bytes calldata
-    ) external override poolManagerOnly returns (bytes4) {
+    ) external view override poolManagerOnly returns (bytes4) {
         if (!_senderHoldsMinTokens(tx.origin)) revert MinBalanceNotHeld();
         return this.beforeDonate.selector;
     }
@@ -79,4 +83,133 @@ contract ERC20OwnershipAllowlistHook is BaseHook {
     }
 }
 
-/// @dev build the 721 and 1155 counterparts also
+/// @notice This hooks restricts access given a minimum balance of an ERC721 token
+contract ERC721OwnershipAllowlistHook is BaseHook {
+    using PoolIdLibrary for PoolKey;
+
+    /// ERRORS ///
+
+    error MinBalanceNotHeld();
+
+    /// IMMUTABLES ///
+
+    IERC721 public immutable erc721;
+    uint256 public immutable minBalance;
+
+    /// CONSTRUCTOR ///
+
+    constructor(
+        IPoolManager _poolManager, 
+        IERC721 _erc721,
+        uint256 _minBalance
+    ) BaseHook(_poolManager) {
+        erc721 = _erc721;
+        minBalance = _minBalance;
+    }
+
+    /// OVERRIDES ///
+
+    function beforeAddLiquidity(
+        address,
+        PoolKey calldata,
+        IPoolManager.ModifyLiquidityParams calldata,
+        bytes calldata
+    ) external view override poolManagerOnly returns (bytes4) {
+        if (!_senderHoldsMinTokens(tx.origin)) revert MinBalanceNotHeld();
+        return this.beforeAddLiquidity.selector;
+    }
+
+    function beforeSwap(
+        address,
+        PoolKey calldata,
+        IPoolManager.SwapParams calldata,
+        bytes calldata
+    ) external view override poolManagerOnly returns (bytes4) {
+        if (!_senderHoldsMinTokens(tx.origin)) revert MinBalanceNotHeld();
+        return this.beforeSwap.selector;
+    }
+
+    function beforeDonate(
+        address,
+        PoolKey calldata,
+        uint256,
+        uint256,
+        bytes calldata
+    ) external view override poolManagerOnly returns (bytes4) {
+        if (!_senderHoldsMinTokens(tx.origin)) revert MinBalanceNotHeld();
+        return this.beforeDonate.selector;
+    }
+
+    /// INTERNALS ///
+
+    function _senderHoldsMinTokens(address _sender) internal view returns (bool) {
+        return (erc721.balanceOf(_sender) >= minBalance);
+    }
+}
+
+/// @notice This hooks restricts access given a minimum balance of an ERC1155 token
+contract ERC1155OwnershipAllowlistHook is BaseHook {
+    using PoolIdLibrary for PoolKey;
+
+    /// ERRORS ///
+
+    error MinBalanceNotHeld();
+
+    /// IMMUTABLES ///
+
+    IERC1155 public immutable erc1155;
+    uint256 public immutable tokenId;
+    uint256 public immutable minBalance;
+
+    /// CONSTRUCTOR ///
+
+    constructor(
+        IPoolManager _poolManager, 
+        IERC1155 _erc1155,
+        uint256 _tokenId,
+        uint256 _minBalance
+    ) BaseHook(_poolManager) {
+        erc1155 = _erc1155;
+        tokenId = _tokenId;
+        minBalance = _minBalance;
+    }
+
+    /// OVERRIDES ///
+
+    function beforeAddLiquidity(
+        address,
+        PoolKey calldata,
+        IPoolManager.ModifyLiquidityParams calldata,
+        bytes calldata
+    ) external view override poolManagerOnly returns (bytes4) {
+        if (!_senderHoldsMinTokens(tx.origin)) revert MinBalanceNotHeld();
+        return this.beforeAddLiquidity.selector;
+    }
+
+    function beforeSwap(
+        address,
+        PoolKey calldata,
+        IPoolManager.SwapParams calldata,
+        bytes calldata
+    ) external view override poolManagerOnly returns (bytes4) {
+        if (!_senderHoldsMinTokens(tx.origin)) revert MinBalanceNotHeld();
+        return this.beforeSwap.selector;
+    }
+
+    function beforeDonate(
+        address,
+        PoolKey calldata,
+        uint256,
+        uint256,
+        bytes calldata
+    ) external view override poolManagerOnly returns (bytes4) {
+        if (!_senderHoldsMinTokens(tx.origin)) revert MinBalanceNotHeld();
+        return this.beforeDonate.selector;
+    }
+
+    /// INTERNALS ///
+
+    function _senderHoldsMinTokens(address _sender) internal view returns (bool) {
+        return (erc1155.balanceOf(_sender, tokenId) >= minBalance);
+    }
+}

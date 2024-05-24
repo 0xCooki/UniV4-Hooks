@@ -18,8 +18,6 @@ import {PoolSwapTest} from "@uniV4/src/test/PoolSwapTest.sol";
 import {ReceiptHook} from "../contracts/Hooks/ReceiptHook.sol";
 import {HookAddressMiner} from "../contracts/libraries/HookAddressMiner.sol";
 
-
-
 contract ReceiptHookTest is Test, Deployers {
     using PoolIdLibrary for PoolKey;
     using CurrencyLibrary for Currency;
@@ -87,7 +85,6 @@ contract ReceiptHookTest is Test, Deployers {
     }
 
     function testSwapAndMint() public {
-        
         /// Swap via first pool
         swap(key0, true, 1e18, ZERO_BYTES);
 
